@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
-        android:text="Submit"
+        android:text="@string/submit2"
         app:cornerRadius="11dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -40,19 +40,20 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
-        android:hint="Desc"
+        android:hint="@string/desc"
         android:inputType="textPersonName"
         android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/previewImage" />
+        app:layout_constraintTop_toBottomOf="@+id/previewImage"
+        android:autofillHints="masukkan desc" />
 
     <Button
         android:id="@+id/btncamera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="Kamera"
+        android:text="@string/kamera"
         app:icon="@drawable/ic_baseline_photo_camera_24"
         app:layout_constraintEnd_toStartOf="@+id/btngaleri"
         app:layout_constraintHorizontal_bias="0.5"
@@ -63,7 +64,7 @@
         android:id="@+id/btngaleri"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Galeri"
+        android:text="@string/galeri"
         app:icon="@drawable/ic_baseline_file_copy_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

@@ -7,7 +7,6 @@ import kotlinx.parcelize.Parcelize
 import java.util.*
 
 data class LoginResponse(
-
 	@field:SerializedName("loginResult")
 	val loginResult: LoginResult? = null,
 
@@ -19,7 +18,6 @@ data class LoginResponse(
 )
 
 data class LoginResult(
-
 	@field:SerializedName("name")
 	val name: String? = null,
 
@@ -42,8 +40,7 @@ data class LoginRequest(
 
 data class UserModels(
 	val name: String,
-	val email: String,
-	val password: String,
+	val token: String,
 	val isLogin: Boolean
 )
 data class RegisterResponse(
@@ -76,7 +73,16 @@ data class ListStory(
 	var photoUrl: String?,
 
 	@field:SerializedName("createdAt")
-	var createdAt: Date?,
+	var createdAt: String?,
+
+	@field:SerializedName("lon")
+	var longitude: Double,
+
+	@field:SerializedName("lat")
+	var latitude: Double,
+
+	@field:SerializedName("id")
+	var id: String
 ) : Parcelable
 
 data class FileUploadResponse(
@@ -85,4 +91,9 @@ data class FileUploadResponse(
 
 	@field:SerializedName("message")
 	val message: String
+)
+data class RegisterRequest(
+	val name: String? = null,
+	val email: String? = null,
+	val password: String? = null
 )

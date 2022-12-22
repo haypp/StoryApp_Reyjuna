@@ -1,31 +1,29 @@
 package com.haypp.storyapp_reyjuna.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.haypp.storyapp_reyjuna.R
+import com.haypp.storyapp_reyjuna.adaptor.LoadingStoryAdapter
 import com.haypp.storyapp_reyjuna.adaptor.StoryAdaptor
 import com.haypp.storyapp_reyjuna.data.UserPref
 import com.haypp.storyapp_reyjuna.data.ViewModelFactory
 import com.haypp.storyapp_reyjuna.databinding.ActivityMainBinding
+import com.haypp.storyapp_reyjuna.viewmodels.AddStoryViewModel
+import com.haypp.storyapp_reyjuna.viewmodels.LoginViewModel
 import com.haypp.storyapp_reyjuna.viewmodels.MainViewModel
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mviewmodel: MainViewModel
+    private lateinit var lviewmodel: LoginViewModel
     private lateinit var adaptor: StoryAdaptor
+    private lateinit var factory: ViewModelFactory
+    private lateinit var adViewmodel : AddStoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +31,14 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = "StoryApp"
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mviewmodel = ViewModelProvider(this, ViewModelFactory(UserPref.getInstance(dataStore))
-        )[MainViewModel::class.java]
+
+        factory = ViewModelFactory.getInstance(this)
+        mviewmodel = ViewModelProvider(this, factory)[MainViewModel::class.java]
+        lviewmodel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
+        adViewmodel = ViewModelProvider(this, factory)[AddStoryViewModel::class.java]
+        adaptor = StoryAdaptor()
+        binding.rvMain.layoutManager = LinearLayoutManager(this)
+        binding.rvMain.setHasFixedSize(true)
         cekusertoken()
     }
 
@@ -46,34 +50,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun perAdaptoran() {
-        adaptor = StoryAdaptor()
-        adaptor.notifyDataSetChanged()
-        binding.apply {
-            recyclerViewMain.layoutManager = LinearLayoutManager(this@MainActivity)
-            recyclerViewMain.setHasFixedSize(true)
-            recyclerViewMain.adapter = adaptor
-        }
-        filladaptor()
-    }
-
-    private fun filladaptor() {
-        val loginSession = LoginSession(this)
-        val token = loginSession.passToken().toString()
-        mviewmodel.getAllStories("Bearer $token")
-        mviewmodel.allStories.observe(this) {
-            if (it != null) {
-                adaptor.setListStory(it.ListStory)
-            }
-            if (it == null) {
-                Toast.makeText(this, "Gagal mengambil data", Toast.LENGTH_SHORT).show()
-            }
+        binding.rvMain.adapter = adaptor.withLoadStateFooter(
+            footer = LoadingStoryAdapter { adaptor.retry() }
+        )
+        mviewmodel.getStory().observe(this@MainActivity) {
+            adaptor.submitData(lifecycle, it)
         }
     }
 
     private fun cekusertoken() {
-        mviewmodel.getUser().observe(this) { user ->
+        adViewmodel.getUser().observe(this) { user ->
             if (user.isLogin) {
-                Log.d("cek", "user sudah login")
                 perAdaptoran()
                 setbutton()
             } else {
@@ -93,7 +80,10 @@ class MainActivity : AppCompatActivity() {
             R.id.action_logout -> {
                 val loginSession = LoginSession(this)
                 loginSession.logoutSession()
-                mviewmodel.logout()
+                lviewmodel.logout()
+            }
+            R.id.btnmaps -> {
+                startActivity(Intent(this, StoryMaps::class.java))
             }
         }
         return true

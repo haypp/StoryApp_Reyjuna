@@ -2,31 +2,24 @@ package com.haypp.storyapp_reyjuna.activity
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import com.haypp.storyapp_reyjuna.R
-import com.haypp.storyapp_reyjuna.data.LoginRequest
-import com.haypp.storyapp_reyjuna.data.UserPref
-import com.haypp.storyapp_reyjuna.data.ViewModelFactory
+import com.haypp.storyapp_reyjuna.data.*
 import com.haypp.storyapp_reyjuna.databinding.ActivityLoginBinding
+import com.haypp.storyapp_reyjuna.etc.Result
 import com.haypp.storyapp_reyjuna.viewmodels.LoginViewModel
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class Login : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var lviewmodel: LoginViewModel
+    private lateinit var factory: ViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +30,10 @@ class Login : AppCompatActivity() {
         setButton()
         setupAnimation()
         showLoading(false)
-        lviewmodel = ViewModelProvider(this, ViewModelFactory(UserPref.getInstance(dataStore))
-        )[LoginViewModel::class.java]
+        
+        factory = ViewModelFactory.getInstance(this)
+        lviewmodel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
+        
         binding.edRegisterPassword.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
             }
@@ -62,33 +57,31 @@ class Login : AppCompatActivity() {
 
     private fun buttonClicked() {
         val resp = LoginRequest(binding.edRegisterEmail.text.toString(), binding.edRegisterPassword.text.toString())
-        lviewmodel.meLogin(resp)
-        lviewmodel.login()
         showLoading(true)
-        lviewmodel.loginUser.observe(this) {
-            val e = it.error?.toString()
-            Log.e("error apa ini : ", e.toString())
-            if (it.error?.toString().equals("false")) {
-                showLoading(false)
-                val loginSession = LoginSession(this)
-                loginSession.saveAuthToken(it.loginResult?.token.toString())
-                Log.d(
-                    "LoginActivity",
-                    "token : ${loginSession.passToken().toString()}"
-                )
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags =
-                    Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-                finish()
-                } else {
-                showLoading(false)
-                binding.edRegisterEmail.text = null
-                binding.edRegisterPassword.text = null
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+        lviewmodel.meLogin(resp).observe(this) {
+            when (it) {
+                is Result.Success -> {
+                    showLoading(false)
+                    val response = it.data
+                    saveUserData(UserModels(
+                            response.loginResult?.name.toString(),
+                            response.loginResult?.token.toString(),
+                            true))
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
+                is Result.Loading -> showLoading(true)
+                is Result.Error -> {
+                    Toast.makeText(this, it.error, Toast.LENGTH_SHORT).show()
+                    showLoading(false)
+                }
+                else -> {
+                    Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
+                    showLoading(false)
                 }
             }
         }
+    }
 
     fun setButton() {
         val result = binding.edRegisterPassword.text.toString()
@@ -96,6 +89,9 @@ class Login : AppCompatActivity() {
     }
     private fun showLoading(isLoading: Boolean) {
         binding.progressbar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+    private fun saveUserData(user: UserModels) {
+        lviewmodel.saveUser(user)
     }
 
     private fun setupAnimation() {

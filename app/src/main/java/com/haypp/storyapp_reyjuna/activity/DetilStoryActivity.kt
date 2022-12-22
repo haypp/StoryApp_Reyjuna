@@ -18,11 +18,13 @@ class DetilStoryActivity : AppCompatActivity() {
         binding = ActivityDetilStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
+
         val detail = intent.getParcelableExtra<ListStory>(EXTRA_NAME) as ListStory
+
         binding.apply {
             tvname.text = detail.name
             tvDesc.text = detail.description
-            tvDate.text = detail.createdAt.toString().removeRange(16,detail.createdAt.toString().length)
+            tvDate.text = detail.createdAt?.removeRange(16,detail.createdAt!!.length)
             Glide.with(this@DetilStoryActivity)
                 .load(detail.photoUrl)
                 .transition(DrawableTransitionOptions.withCrossFade())

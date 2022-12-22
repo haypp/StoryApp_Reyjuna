@@ -1,0 +1,25 @@
+Skenario Pengujian:
+
+LoginViewModelTest
+1. Memastikan ketika melakukan Login data tidak NULL mengembalikan Result.Success
+2. ketika melakukan Login dengan data tidak NULL mengembalikan Result.Error
+3. Melakukan save user pref login dan mengeceknya di repo
+4. Melakukan logout dan mengeceknya di repo
+
+MainViewModelTest
+1. Memastikan data Story tidak NULL
+2. Memastikan jumlah data sesuai yang diharapkan
+3. Memastikan pagging berjalan sesuai harapan
+
+StoryMapsViewModel
+1. Memastikan data story tidak NULL Memastikan mengembalikan Result.Success
+2. ketika tidak ada internet data story tidak NULL Memastikan mengembalikan Result.Error
+
+RegisterViewModelTest
+1. Memastikan ketika melakukan Register data tidak NULL mengembalikan Result.Success
+2. ketika melakukan Register data tidak NULL mengembalikan Result.Error
+
+AddStoryViewModelTest
+1. Ketika menambahkan Story data tidak NULL mengembalikan Result.Success
+2. ketika tidak ada internet data story tidak NULL Memastikan mengembalikan Result.Error
+3. check user data dan mengenalikan data user tidak NULL

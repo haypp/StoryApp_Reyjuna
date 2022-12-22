@@ -2,28 +2,22 @@ package com.haypp.storyapp_reyjuna.activity
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
 import com.haypp.storyapp_reyjuna.R
-import com.haypp.storyapp_reyjuna.data.UserModels
-import com.haypp.storyapp_reyjuna.data.UserPref
 import com.haypp.storyapp_reyjuna.data.ViewModelFactory
 import com.haypp.storyapp_reyjuna.databinding.ActivityRegisterBinding
+import com.haypp.storyapp_reyjuna.etc.Result
 import com.haypp.storyapp_reyjuna.viewmodels.RegisterViewModel
 import androidx.core.widget.addTextChangedListener as adt
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var regisVM: RegisterViewModel
+    private lateinit var factory: ViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +25,8 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar?.hide()
-        regisVM = ViewModelProvider(this, ViewModelFactory(UserPref.getInstance(dataStore))
-        )[RegisterViewModel::class.java]
+        factory = ViewModelFactory.getInstance(this)
+        regisVM = ViewModelProvider(this, factory)[RegisterViewModel::class.java]
         showLoading(false)
         buttonEnabler()
         setbuttoon()
@@ -47,18 +41,18 @@ class RegisterActivity : AppCompatActivity() {
         val name = binding.edRegisterName.text.toString()
         val email = binding.edRegisterEmail.text.toString()
         val password = binding.edRegisterPassword.text.toString()
-        regisVM.sendUser(UserModels(name, email, password,false))
-        regisVM.doRegister(name, email, password)
-        regisVM.registerUser.observe(this) {
-            if (!it.error) {
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-                showLoading(false)
-                finish()
-            } else {
-                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
-                showLoading(false)
-                binding.edRegisterEmail.text = null
-                binding.edRegisterPassword.text = null
+        regisVM.doRegister(name,email, password).observe(this) {
+            when (it) {
+                is Result.Success -> {
+                    showLoading(false)
+                    Toast.makeText(this, it.data.message, Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is Result.Loading -> showLoading(true)
+                is Result.Error -> {
+                    Toast.makeText(this, it.error, Toast.LENGTH_SHORT).show()
+                    showLoading(false)
+                }
             }
         }
     }
