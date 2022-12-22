@@ -32,8 +32,9 @@ class StoryViewModelTest {
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    @Mock
     private lateinit var mainViewModel: MainViewModel
+
+    @Mock
     private val dummy = DataDummy.generateDummyStoryResponse()
 
     @get:Rule

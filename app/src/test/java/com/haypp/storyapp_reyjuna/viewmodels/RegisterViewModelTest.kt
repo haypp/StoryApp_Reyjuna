@@ -19,10 +19,10 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class RegisterViewModelTest {
-    private lateinit var regisViewModel: RegisterViewModel
     @get: Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
+    private lateinit var regisViewModel: RegisterViewModel
 
     @Mock
     private var repo = mock(StoryRepository::class.java)

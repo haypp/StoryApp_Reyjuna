@@ -20,10 +20,10 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class StoryWithMapsViewModelTest {
-    private lateinit var mapsViewModel: StoryMapsViewModel
-
     @get: Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
+    private lateinit var mapsViewModel: StoryMapsViewModel
 
     @Mock
     private var repo = mock(StoryRepository::class.java)

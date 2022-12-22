@@ -28,6 +28,7 @@ import java.io.File
 class AddStoryViewModelTest{
     @get: Rule
     var instantExecutorRule = InstantTaskExecutorRule()
+
     private lateinit var addStoryViewModel: AddStoryViewModel
 
     @Mock
