@@ -16,13 +16,15 @@ import com.haypp.storyapp_reyjuna.getOrAwaitValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.verify
+import org.mockito.Mockito
+import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 
@@ -35,41 +37,54 @@ class StoryViewModelTest {
     private lateinit var mainViewModel: MainViewModel
 
     @Mock
-    private val dummy = DataDummy.generateDummyStoryResponse()
+    private val repo = mock(StoryRepository::class.java)
+//    private val dummy =
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    @Before
+    fun setUp() {
+        mainViewModel = MainViewModel(repo)
+    }
+
     @Test
     fun `when get List Story is Successful`() = runTest {
-        val mDummyStory = dummy
-        val mData: PagingData<ListStory> = PagingTestStorySources.snapshot(mDummyStory)
-        val mStory = MutableLiveData<PagingData<ListStory>>()
+        val dummyStories = DataDummy.generateDummyStoryResponse()
+        val data: PagingData<ListStory> = PagingSourceTest.snapshot(dummyStories)
+        val expectedStory = MutableLiveData<PagingData<ListStory>>()
 
-        mStory.postValue(mData)
-        `when`(mainViewModel.getStory()).thenReturn(mStory)
+        expectedStory.value = data
+        `when`(repo.getStory()).thenReturn(expectedStory)
 
-        val mActualStoryResponse: PagingData<ListStory> =
+        val actualStory: PagingData<ListStory> =
             mainViewModel.getStory().getOrAwaitValue()
 
-        val mDiffer = AsyncPagingDataDiffer(
+        val differ = AsyncPagingDataDiffer(
             diffCallback = StoryAdaptor.DIFF_CALLBACK,
             updateCallback = noopListUpdateCallback,
             workerDispatcher = Dispatchers.Main,
         )
-        mDiffer.submitData(mActualStoryResponse)
+        differ.submitData(actualStory)
 
-        verify(mainViewModel).getStory()
-        assertNotNull(mDiffer.snapshot())
-        assertEquals(mDummyStory.size, mDiffer.snapshot().size)
+        assertNotNull(differ.snapshot())
+        assertEquals(dummyStories, differ.snapshot())
+        assertEquals(dummyStories.size, differ.snapshot().size)
+        assertEquals(dummyStories[0].name, differ.snapshot()[0]?.name)
+    }
+
+    val noopListUpdateCallback = object : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) {}
+        override fun onRemoved(position: Int, count: Int) {}
+        override fun onMoved(fromPosition: Int, toPosition: Int) {}
+        override fun onChanged(position: Int, count: Int, payload: Any?) {}
     }
 }
 
-class PagingTestStorySources:
-    PagingSource<Int, LiveData<List<ListStory>>>() {
+class PagingSourceTest: PagingSource<Int, LiveData<List<ListStory>>>() {
     companion object {
-        fun snapshot(mItems: List<ListStory>): PagingData<ListStory> {
-            return PagingData.from(mItems)
+        fun snapshot(items: List<ListStory>): PagingData<ListStory> {
+            return PagingData.from(items)
         }
     }
 
@@ -80,11 +95,4 @@ class PagingTestStorySources:
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LiveData<List<ListStory>>> {
         return LoadResult.Page(emptyList(), 0, 1)
     }
-}
-
-val noopListUpdateCallback = object : ListUpdateCallback {
-    override fun onInserted(position: Int, count: Int) {}
-    override fun onRemoved(position: Int, count: Int) {}
-    override fun onMoved(fromPosition: Int, toPosition: Int) {}
-    override fun onChanged(position: Int, count: Int, payload: Any?) {}
 }

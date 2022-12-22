@@ -4,13 +4,20 @@ import com.haypp.storyapp_reyjuna.data.*
 
 object DataDummy {
     fun generateDummyStoryResponse(): List<ListStory> {
-    val items: MutableList<ListStory> = arrayListOf()
-    for (i in 0..100) {
-        val story = ListStory(
-            i.toString(),"created + $i","name + $i","createAt + $i",i.toDouble(),i.toDouble(),"id + $i")
-        items.add(story)
-    }
-    return items
+        val item = arrayListOf<ListStory>()
+        for (i in 0 until 10) {
+            val story = ListStory(
+                "siapa aja",
+                "cek lokasi",
+                "https://images.pexels.com/photos/3861972/pexels-photo-3861972.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                "2022-11-02",
+                106.64356,
+                -6.1335033,
+                "user-XNkh2yhu1ETa8Wvt",
+            )
+            item.add(story)
+        }
+        return item
     }
 
     fun generateDummyLoginResponse(): LoginResponse {
