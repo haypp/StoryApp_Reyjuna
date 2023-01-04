@@ -16,21 +16,20 @@ import com.haypp.storyapp_reyjuna.getOrAwaitValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
-class StoryViewModelTest {
+
+class MainViewModelTest{
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
@@ -38,7 +37,6 @@ class StoryViewModelTest {
 
     @Mock
     private val repo = mock(StoryRepository::class.java)
-//    private val dummy =
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()

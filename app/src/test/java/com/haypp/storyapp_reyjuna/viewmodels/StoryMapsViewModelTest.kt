@@ -19,7 +19,7 @@ import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class StoryWithMapsViewModelTest {
+class StoryMapsViewModelTest {
     @get: Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
@@ -46,6 +46,7 @@ class StoryWithMapsViewModelTest {
         assertNotNull(actualStory)
         assertTrue(actualStory is Result.Success)
     }
+
     @Test
     fun `when Get Story With no Network and Return Error`() {
         val expectedStory = MutableLiveData<Result<AllStoriesResponse>>()
